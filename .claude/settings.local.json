@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git config:*)",
+      "Bash(where:*)",
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(python:*)",
+      "Bash(pip install:*)"
+    ]
+  }
+}

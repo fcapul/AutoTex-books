@@ -1,0 +1,300 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{autotex-book}[2026/02/08 AutoTex Book Style v0.2]
+
+% =====================================================================
+% KDP / Print-on-Demand Options
+% =====================================================================
+%
+% Usage:
+%   \usepackage{autotex-book}                    % default: A4, 1in margins
+%   \usepackage[kdp]{autotex-book}               % KDP 6x9 (novel), no bleed
+%   \usepackage[kdp=pocket]{autotex-book}        % KDP 5.25x8
+%   \usepackage[kdp,bleed]{autotex-book}         % KDP 6x9 with bleed
+%   \usepackage[kdp,gutter=0.5in]{autotex-book}  % custom gutter
+%
+% Supported KDP trim sizes:
+%   pocket      = 5.25 x 8 in
+%   digest      = 5.5 x 8.5 in
+%   novel       = 6 x 9 in      (default when kdp is used)
+%   royal       = 6.14 x 9.21 in
+%   crown       = 7 x 10 in
+%   large       = 7.5 x 9.25 in
+%   letter      = 8.5 x 11 in
+%   ustrade     = 6 x 9 in      (alias for novel)
+%   uktrade     = 5.06 x 7.81 in
+% =====================================================================
+
+\RequirePackage{kvoptions}
+\RequirePackage{etoolbox}
+
+\SetupKeyvalOptions{
+  family=atxbook,
+  prefix=atxbook@
+}
+
+% --- KDP trim size (string option, default empty = not KDP) ---
+\DeclareStringOption[]{kdp}
+
+% --- Bleed toggle ---
+\DeclareBoolOption[false]{bleed}
+
+% --- Gutter override (default empty = auto based on KDP size) ---
+\DeclareStringOption[]{gutter}
+
+% --- Paper color (for informational purposes / future ICC profile support) ---
+\DeclareStringOption[white]{paper}
+
+% Process options
+\ProcessKeyvalOptions*
+
+% --- Internal dimensions ---
+\newlength{\atxbook@trimw}
+\newlength{\atxbook@trimh}
+\newlength{\atxbook@gutter}
+\newlength{\atxbook@mtop}
+\newlength{\atxbook@mbottom}
+\newlength{\atxbook@mouter}
+\newlength{\atxbook@minner}
+\newlength{\atxbook@bleedoffset}
+
+% Flag: are we in KDP mode?
+\newif\ifatxbook@kdpmode
+\atxbook@kdpmodefalse
+
+% =====================================================================
+% Resolve KDP trim size
+% =====================================================================
+
+\ifdefempty{\atxbook@kdp}{%
+  % No KDP option: standard A4 with 1in margins
+  \atxbook@kdpmodefalse
+}{%
+  \atxbook@kdpmodetrue
+  %
+  % If kdp was passed without a value (bare option), kvoptions sets it
+  % to the init value "". Handle by defaulting to "novel".
+  \ifdefstring{\atxbook@kdp}{true}{\def\atxbook@kdp{novel}}{}%
+  \ifdefstring{\atxbook@kdp}{}{\def\atxbook@kdp{novel}}{}%
+  %
+  % --- Set trim dimensions based on size name ---
+  \ifdefstring{\atxbook@kdp}{pocket}{%
+    \setlength{\atxbook@trimw}{5.25in}%
+    \setlength{\atxbook@trimh}{8in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{uktrade}{%
+    \setlength{\atxbook@trimw}{5.06in}%
+    \setlength{\atxbook@trimh}{7.81in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{digest}{%
+    \setlength{\atxbook@trimw}{5.5in}%
+    \setlength{\atxbook@trimh}{8.5in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{novel}{%
+    \setlength{\atxbook@trimw}{6in}%
+    \setlength{\atxbook@trimh}{9in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{ustrade}{%
+    \setlength{\atxbook@trimw}{6in}%
+    \setlength{\atxbook@trimh}{9in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{royal}{%
+    \setlength{\atxbook@trimw}{6.14in}%
+    \setlength{\atxbook@trimh}{9.21in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{crown}{%
+    \setlength{\atxbook@trimw}{7in}%
+    \setlength{\atxbook@trimh}{10in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{large}{%
+    \setlength{\atxbook@trimw}{7.5in}%
+    \setlength{\atxbook@trimh}{9.25in}%
+  }{}%
+  \ifdefstring{\atxbook@kdp}{letter}{%
+    \setlength{\atxbook@trimw}{8.5in}%
+    \setlength{\atxbook@trimh}{11in}%
+  }{}%
+  %
+  % --- Default margins for KDP ---
+  % These are comfortable defaults above KDP minimums.
+  \setlength{\atxbook@mtop}{0.75in}%
+  \setlength{\atxbook@mbottom}{0.75in}%
+  \setlength{\atxbook@mouter}{0.625in}%
+  %
+  % --- Gutter: use override or default 0.375in ---
+  \ifdefempty{\atxbook@gutter}{%
+    \setlength{\atxbook@gutter}{0.375in}%
+  }{%
+    \setlength{\atxbook@gutter}{\atxbook@gutter}%
+  }%
+  %
+  % Inner margin = outer margin + gutter
+  \setlength{\atxbook@minner}{\atxbook@mouter}%
+  \addtolength{\atxbook@minner}{\atxbook@gutter}%
+  %
+  % --- Bleed ---
+  \ifatxbook@bleed
+    \setlength{\atxbook@bleedoffset}{0.125in}%
+    % With bleed, increase top/bottom/outer margins by bleed offset
+    % so the text area stays the same, and the PDF page extends.
+    \addtolength{\atxbook@mtop}{\atxbook@bleedoffset}%
+    \addtolength{\atxbook@mbottom}{\atxbook@bleedoffset}%
+    \addtolength{\atxbook@mouter}{\atxbook@bleedoffset}%
+    % PDF page = trim + bleed
+    \addtolength{\atxbook@trimw}{\atxbook@bleedoffset}%      outer edge
+    \addtolength{\atxbook@trimh}{0.25in}%                    top + bottom
+  \fi
+}
+
+% =====================================================================
+% Load geometry with the right settings
+% =====================================================================
+
+\ifatxbook@kdpmode
+  \RequirePackage[
+    paperwidth=\atxbook@trimw,
+    paperheight=\atxbook@trimh,
+    top=\atxbook@mtop,
+    bottom=\atxbook@mbottom,
+    outer=\atxbook@mouter,
+    inner=\atxbook@minner,
+    twoside
+  ]{geometry}
+\else
+  % Standard layout for screen/print preview
+  \RequirePackage[margin=1in]{geometry}
+\fi
+
+% =====================================================================
+% Encoding and fonts
+% =====================================================================
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
+
+% =====================================================================
+% Headers / footers
+% =====================================================================
+\RequirePackage{fancyhdr}
+
+% =====================================================================
+% Math
+% =====================================================================
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amsthm}
+\RequirePackage{mathtools}
+
+% =====================================================================
+% Tables
+% =====================================================================
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{longtable}
+\RequirePackage{multirow}
+
+% =====================================================================
+% Figures and graphics
+% =====================================================================
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{subcaption}
+\RequirePackage[font=small,labelfont=bf]{caption}
+
+% =====================================================================
+% Colored boxes
+% =====================================================================
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{xcolor}
+
+% =====================================================================
+% Code listings
+% =====================================================================
+\RequirePackage{listings}
+
+% =====================================================================
+% Graphs and diagrams
+% =====================================================================
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% =====================================================================
+% Bibliography
+% =====================================================================
+\RequirePackage[numbers,sort&compress]{natbib}
+
+% =====================================================================
+% Hyperlinks and cross-references
+% =====================================================================
+\RequirePackage{hyperref}
+\RequirePackage{cleveref}
+
+% =====================================================================
+% Miscellaneous
+% =====================================================================
+\RequirePackage{enumitem}
+\RequirePackage{microtype}
+
+% =====================================================================
+% Custom tcolorbox environments
+% =====================================================================
+
+% Definition box
+\newtcolorbox{definitionbox}[1][]{%
+  colback=blue!5!white,
+  colframe=blue!75!black,
+  fonttitle=\bfseries,
+  title={#1}
+}
+
+% Theorem box
+\newtcolorbox{theorembox}[1][]{%
+  colback=green!5!white,
+  colframe=green!35!black,
+  fonttitle=\bfseries,
+  title={#1}
+}
+
+% Example box
+\newtcolorbox{examplebox}[1][]{%
+  colback=orange!5!white,
+  colframe=orange!75!black,
+  fonttitle=\bfseries,
+  title={#1}
+}
+
+% Warning/Note box
+\newtcolorbox{notebox}[1][]{%
+  colback=red!5!white,
+  colframe=red!75!black,
+  fonttitle=\bfseries,
+  title={#1}
+}
+
+% =====================================================================
+% Header/footer setup
+% =====================================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\leftmark}
+\fancyhead[RO]{\rightmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% =====================================================================
+% Graphics path
+% =====================================================================
+\graphicspath{{assets/}}
+
+% =====================================================================
+% KDP info command (prints current settings to the log)
+% =====================================================================
+\ifatxbook@kdpmode
+  \PackageInfo{autotex-book}{%
+    KDP mode: size=\atxbook@kdp,
+    trim=\the\atxbook@trimw\space x \the\atxbook@trimh,
+    gutter=\the\atxbook@gutter,
+    bleed=\ifatxbook@bleed yes\else no\fi,
+    paper=\atxbook@paper
+  }
+\fi
