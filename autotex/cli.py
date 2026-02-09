@@ -8,7 +8,6 @@ generation, and other atomic operations.
 from __future__ import annotations
 
 import argparse
-import shutil
 import sys
 from pathlib import Path
 
@@ -148,43 +147,39 @@ def _cmd_init(args) -> None:
         (book_dir / sub).mkdir(parents=True, exist_ok=True)
         (book_dir / sub / ".gitkeep").touch()
 
-    # Copy root config.yaml as template (reset book-specific fields)
-    root_config = repo_root / "config.yaml"
-    if root_config.exists():
-        shutil.copy2(root_config, book_dir / "config.yaml")
-    else:
-        # Write a minimal config
-        (book_dir / "config.yaml").write_text(
-            "book:\n"
-            '  title: ""\n'
-            '  author: "AutoTex"\n'
-            "  chapters: []\n"
-            "\n"
-            "api:\n"
-            '  gemini_model: "gemini-3-pro-image-preview"\n'
-            "\n"
-            "kdp:\n"
-            "  enabled: false\n"
-            '  trim_size: "novel"\n'
-            "  bleed: false\n"
-            '  gutter: ""\n'
-            '  paper: "white"\n'
-            "\n"
-            "latex:\n"
-            '  compiler: "pdflatex"\n'
-            "  compiler_args:\n"
-            '    - "-interaction=nonstopmode"\n'
-            '    - "-halt-on-error"\n'
-            '  root_file: "main.tex"\n'
-            '  output_dir: "build"\n'
-            "\n"
-            "review:\n"
-            "  max_revision_iterations: 3\n"
-            "  review_dpi: 200\n"
-            "  pages_per_review: 2\n"
-            "  final_review_interval: 5\n",
-            encoding="utf-8",
-        )
+    # Always write a clean template config — never copy root config
+    (book_dir / "config.yaml").write_text(
+        "book:\n"
+        '  title: ""\n'
+        '  author: "AutoTex"\n'
+        "  chapters: []\n"
+        "\n"
+        "api:\n"
+        '  gemini_model: "gemini-3-pro-image-preview"\n'
+        "\n"
+        "kdp:\n"
+        "  enabled: true\n"
+        '  trim_size: "novel"\n'
+        "  bleed: false\n"
+        '  gutter: ""\n'
+        '  paper: "white"\n'
+        "\n"
+        "latex:\n"
+        '  compiler: "pdflatex"\n'
+        "  compiler_args:\n"
+        '    - "-interaction=nonstopmode"\n'
+        '    - "-halt-on-error"\n'
+        '  root_file: "main.tex"\n'
+        '  output_dir: "build"\n'
+        '  docclass_options: "12pt,openright"\n'
+        "\n"
+        "review:\n"
+        "  max_revision_iterations: 3\n"
+        "  review_dpi: 200\n"
+        "  pages_per_review: 2\n"
+        "  final_review_interval: 5\n",
+        encoding="utf-8",
+    )
 
     # Create book-specific CLAUDE.md
     (book_dir / "CLAUDE.md").write_text(
@@ -288,11 +283,16 @@ def _cmd_render_chapter(config, args) -> None:
 
 
 def _cmd_images(config, args) -> None:
-    """Extract image markers, generate images via Gemini, replace markers."""
+    """Extract image markers, generate images via Gemini, replace markers.
+
+    Processes markers one at a time: generate the image, replace that
+    marker in the file, and write immediately. This way completed images
+    survive if a later generation fails.
+    """
     from autotex.agents.image_gen import (
         ImageGenAgent,
         extract_image_requests,
-        replace_markers_with_includes,
+        replace_first_marker,
     )
 
     tex_path: Path = args.file
@@ -310,13 +310,28 @@ def _cmd_images(config, args) -> None:
         print("No %%IMAGE_REQUEST{...}%% markers found.")
         return
 
-    print(f"Found {len(requests)} image request(s). Generating...")
+    total = len(requests)
+    print(f"Found {total} image request(s). Generating...")
     agent = ImageGenAgent(config)
-    agent.generate_all(requests)
 
-    content = replace_markers_with_includes(content)
-    tex_path.write_text(content, encoding="utf-8")
-    print(f"Updated {tex_path} with \\includegraphics commands.")
+    for i, req in enumerate(requests, 1):
+        print(f"[{i}/{total}] Generating {req.filename}...")
+        try:
+            agent.generate(req)
+        except Exception as exc:
+            print(f"  ERROR: {exc}")
+            print(f"  Skipping {req.filename}. Remaining markers left in file.")
+            continue
+        # Replace the first remaining marker and persist
+        content = replace_first_marker(content)
+        tex_path.write_text(content, encoding="utf-8")
+        print(f"  Saved {req.filename}.png and updated {tex_path.name}")
+
+    remaining = len(extract_image_requests(content))
+    if remaining:
+        print(f"\nDone with errors: {remaining} marker(s) still in file.")
+    else:
+        print(f"\nAll {total} image(s) generated and markers replaced.")
 
 
 def _cmd_search(config, args) -> None:
@@ -355,13 +370,11 @@ def _cmd_update_main(config) -> None:
         for ch in plan.chapters
     )
 
-    # Document class: for KDP use twoside, otherwise default to a4paper
-    if config.kdp.enabled:
-        docclass = "\\documentclass[12pt,twoside,openright]{book}"
-    else:
-        docclass = "\\documentclass[12pt,a4paper,openright]{book}"
+    # Document class options are configurable per-book (e.g. "11pt,openany" for workbooks).
+    # The .sty handles all geometry including gutter for binding.
+    docclass = f"\\documentclass[{config.latex.docclass_options}]{{book}}"
 
-    # Build \usepackage line with optional KDP options
+    # Build \usepackage line with KDP options
     kdp_opts = config.kdp.to_package_options()
     if kdp_opts:
         usepackage = f"\\usepackage[{kdp_opts}]{{autotex-book}}"

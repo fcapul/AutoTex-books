@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -129,6 +130,6 @@ class LatexCompiler:
             stripped = line.strip()
             if stripped.startswith("!"):
                 errors.append(stripped)
-            elif "LaTeX Warning" in stripped or "Package .* Warning" in stripped:
+            elif "LaTeX Warning" in stripped or re.search(r"Package \S+ Warning", stripped):
                 warnings.append(stripped)
         return errors, warnings

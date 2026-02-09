@@ -16,7 +16,7 @@ class BookConfig:
 
 @dataclass
 class APIConfig:
-    gemini_api_key: str = "AIzaSyAPJWrdB9D3URlpT0QloUpXewOYXlrs8vM"
+    gemini_api_key: str = ""
     gemini_model: str = "gemini-3-pro-image-preview"
 
 
@@ -28,11 +28,12 @@ class LatexConfig:
     )
     root_file: str = "main.tex"
     output_dir: str = "build"
+    docclass_options: str = "12pt,openright"
 
 
 @dataclass
 class KDPConfig:
-    enabled: bool = False
+    enabled: bool = True
     trim_size: str = "novel"
     bleed: bool = False
     gutter: str = ""
@@ -100,7 +101,7 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
 
     kdp_raw = raw.get("kdp", {})
     kdp = KDPConfig(
-        enabled=kdp_raw.get("enabled", False),
+        enabled=kdp_raw.get("enabled", True),
         trim_size=kdp_raw.get("trim_size", "novel"),
         bleed=kdp_raw.get("bleed", False),
         gutter=kdp_raw.get("gutter", ""),
@@ -115,6 +116,7 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
         ),
         root_file=latex_raw.get("root_file", "main.tex"),
         output_dir=latex_raw.get("output_dir", "build"),
+        docclass_options=latex_raw.get("docclass_options", "12pt,openright"),
     )
 
     review_raw = raw.get("review", {})
@@ -163,6 +165,7 @@ def save_config(config: ProjectConfig, config_path: Path | None = None) -> None:
             "compiler_args": config.latex.compiler_args,
             "root_file": config.latex.root_file,
             "output_dir": config.latex.output_dir,
+            "docclass_options": config.latex.docclass_options,
         },
         "review": {
             "max_revision_iterations": config.review.max_revision_iterations,
