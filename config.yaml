@@ -1,6 +1,7 @@
 book:
   title: ""
   author: "AutoTex"
+  language: "english"
   chapters: []
 
 api:
