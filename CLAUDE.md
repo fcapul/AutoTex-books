@@ -202,16 +202,47 @@ When asked to plan a book:
     \end{align}
     ```
 
-## Image Generation
+## Illustrations Strategy
 
-### Image Request Markers
+**TikZ/PGFPlots first, AI images else.** Prefer native LaTeX illustrations:
 
-To request a Gemini-generated image, place this marker on its own line:
+### Decision Tree
+
+1. **Graphs, plots, function curves** → PGFPlots (native, pixel-perfect, scalable)
+2. **Geometric diagrams, coordinate systems, simple schematics** → TikZ (native, precise)
+3. **Flowcharts, block diagrams, trees** → TikZ with `shapes`, `arrows.meta` libraries
+4. **Conceptual illustrations, realistic scenes, complex visual metaphors, anything else** → AI image (Gemini)
+
+Only use AI-generated images when the illustration requires visual richness that TikZ cannot reasonably produce (e.g., 3D renderings, realistic textures, artistic interpretations).
+
+### TikZ Best Practices
+
+- Wrap TikZ in `\begin{figure}[htbp]...\end{figure}` with `\caption` and `\label`
+- Use `>=stealth` or `>=latex` for clean arrow tips
+- Keep diagrams simple: fewer elements = cleaner output
+- Use consistent color scheme: match the tcolorbox palette (blue, green, orange, red)
+- Test compilation after each diagram — TikZ errors are cryptic
+
+### AI Image Request Markers (Gemini)
+
+Place this marker on its own line:
 ```
-%%IMAGE_REQUEST{description="A diagram showing ...", filename="chNN-descriptive-name", aspect_ratio="16:9"}%%
+%%IMAGE_REQUEST{description="...", filename="chNN-descriptive-name", aspect_ratio="16:9"}%%
 ```
 
-After running `python -m autotex images text/chapterNN.tex`, the marker is replaced with a `\begin{figure}...\includegraphics...\end{figure}` block. The `\includegraphics` width is automatically adjusted based on the aspect ratio (landscape images are wider, portrait images are narrower).
+After running `python -m autotex images text/chapterNN.tex`, the marker is replaced with a `\begin{figure}...\includegraphics...\end{figure}` block.
+
+**Critical rules for AI image descriptions:**
+- **Keep it simple.** Request ONE clear concept per image, not complex multi-element scenes.
+- **Be extremely precise.** Describe exact positions, colors, labels, and relationships. Vague prompts produce vague results.
+-  **Text rendering**: If you want a short text in the image, enclose it in quotes within the description:
+   ```
+   %%IMAGE_REQUEST{description="A labeled diagram with the text "Mitochondria" pointing to the organelle", ...}%%
+   ```
+- **Prefer schematic over realistic.** Flat, diagrammatic styles produce more consistent results than photorealistic requests.
+- **Character/subject consistency**: (Optional) upload a reference image of the subject to maintain visual features across multiple images. Set the first generated image as the reference for subsequent ones.
+
+
 
 ### Supported Aspect Ratios
 
@@ -225,67 +256,59 @@ After running `python -m autotex images text/chapterNN.tex`, the marker is repla
 | `2:3` | Portrait illustrations | 0.45\textwidth |
 | `9:16` | Tall narrow diagrams | 0.4\textwidth |
 
-Unsupported ratios are silently replaced with `16:9`.
-
 ### Reference Images for Style Consistency
 
-To maintain visual consistency across images or to edit an existing image, add a `reference` field pointing to a file in `assets/`:
+Add a `reference` field pointing to a file in `assets/`:
 ```
 %%IMAGE_REQUEST{description="...", filename="ch02-cell-diagram", aspect_ratio="4:3", reference="assets/ch01-cell-overview.png"}%%
 ```
 
-When a reference image is provided:
-- The image is uploaded to Gemini alongside the text prompt
 - Gemini matches the reference's color palette, line weight, and overall aesthetic
 - Use this for style consistency across a chapter or to request edits to an existing image
-- Explicitly include in your prompt to Gemini what to do with such picture
-
-### Image Generation Best Practices
-
-1. **Text rendering**: If you want text in the image, enclose it in quotes within the description:
-   ```
-   %%IMAGE_REQUEST{description="A labeled diagram with the text "Mitochondria" pointing to the organelle", ...}%%
-   ```
-
-2. **Spatial reasoning**: The image model uses a thinking process before generating. Complex spatial prompts work well:
-   ```
-   %%IMAGE_REQUEST{description="Place the nucleus in the center, with ribosomes to the left and the Golgi apparatus behind the ER", ...}%%
-   ```
-
-3. **Character/subject consistency**: Upload a reference image of the subject to maintain visual features across multiple images. Set the first generated image as the reference for subsequent ones.
-
-4. **Scientific style**: All images are generated with a white background, clean lines, and professional textbook style by default. Keep descriptions focused on content, not style.
-
-5. **Descriptive filenames**: Use the pattern `chNN-descriptive-name` (e.g., `ch03-neural-network-architecture`). This makes cross-referencing and file management easier.
+- Explicitly include in your prompt what to do with the reference picture
 
 ## Chapter Generation Workflow
 
-Set `CFG=books/<name>/config.yaml` for the active book. For each chapter:
+Set `CFG=books/<name>/config.yaml` for the active book.
+
+**IMPORTANT: Write and review ONE chapter at a time. NEVER batch multiple chapters before reviewing.**
+
+For each chapter:
 1. Read the plan from the book's `config.yaml`
 2. Read previous chapters (`books/<name>/text/chapter01.tex`, etc.) for context and continuity
 3. Write the chapter content to `books/<name>/text/chapterNN.tex`
 4. Run: `python -m autotex --config $CFG images text/chapterNN.tex` (generates images and replaces markers)
 5. Run: `python -m autotex --config $CFG compile`
 6. If compilation fails, read error output, fix the LaTeX, recompile (up to 3 attempts)
-7. Run: `python -m autotex --config $CFG render-chapter N "Chapter Title"` to get PNGs
-8. Read the PNG files to visually review formatting
-9. If issues found, edit the LaTeX and repeat from step 5 (up to 3 attempts)
-10. Move to next chapter
+7. **Log analysis (MANDATORY):** Read `build/main.log` and count Overfull/Underfull boxes. If any Overfull hbox exceeds 10pt, you MUST fix it before proceeding.
+8. **Full chapter render (MANDATORY):** Determine the page range of the chapter (use `autotex search "Chapter Title"` to find the start page, and the next chapter's start to find the end). Then render ALL pages of the chapter using `autotex render <start> <start+1> ... <end>`.
+9. **Read EVERY rendered PNG.** Do NOT skip any page. Do NOT sample. Read them ALL, in order. For each page, check the Visual Review Checklist below.
+10. If ANY issue is found, edit the LaTeX, recompile, and re-render the affected pages. Repeat up to 3 times.
+11. Only after all pages pass review, move to the next chapter.
 
 For very long books (15+ chapters), read only the most recent 2-3 chapters for context continuity rather than all of them.
 
+### Final Book Review (after all chapters are written)
+
+After completing ALL chapters, perform a final full-book review:
+1. Render ALL pages of the entire PDF (page 0 through last page).
+2. Read EVERY page PNG. Do NOT skip any.
+3. Pay special attention to: title page, table of contents, part pages, chapter openings, and the last page of each chapter (where blank pages tend to appear).
+4. Fix any remaining issues, recompile, and re-check affected pages.
+
 ## Visual Review Checklist
 
-When reviewing rendered PDF pages, check for:
-1. Text overflowing into margins
-2. Bad figure or table placement (floating too far from reference)
-3. Orphan lines (single line at top of page) or widow lines (single line at bottom)
-4. Overlapping elements (text over figures, tables over margins)
-5. Consistent styling (fonts, spacing, heading styles)
-6. Proper margins and whitespace
-7. Readability and visual balance
-8. Missing or broken cross-references (shown as "??")
-9. Overfull or underfull hbox warnings visible as text jutting out
+**You MUST check EVERY rendered page for ALL of the following. Do not skip items.**
+
+1. **Header overlap**: Do the left header (chapter title) and right header (section title) collide or overlap? If the page is too narrow for both, the text will run together in the middle.
+2. **Text overflowing into margins** (overfull hbox): Look for text that extends past the right margin. This appears as text jutting out beyond the text block boundary.
+3. **Blank or near-blank pages**: Does the page have mostly white space with only a header and page number? This wastes space and looks unprofessional. Common causes: `\include` forcing new pages, `openright` creating blank even pages, or floats pushing content to the next page.
+4. **Large vertical gaps**: Is there a gap of more than ~3cm between two elements (boxes, paragraphs, figures)? This usually means a float was placed poorly or a page break was forced.
+5. **Bad figure/table placement**: Is a figure or table floating far from where it's referenced in the text? It should appear on the same page or the next page.
+6. **Orphan/widow lines**: A single line of a paragraph stranded at the top or bottom of a page.
+7. **Overlapping elements**: Text overlapping with figures, tables, or boxes.
+8. **Missing cross-references**: Any "??" in the text means a `\cref{}` or `\ref{}` is broken.
+9. **Consistent styling**: Fonts, spacing, and heading styles should be uniform throughout.
 
 ## Config Format
 

@@ -1,0 +1,153 @@
+\chapter{Determinanti}
+\label{ch:determinanti}
+
+Il determinante è una funzione che associa a ogni matrice quadrata uno scalare, fornendo informazioni cruciali sull'invertibilità della matrice e sulla compatibilità dei sistemi lineari.
+
+\section{Definizione ricorsiva}
+\label{sec:det-definizione}
+
+\begin{definitionbox}[Determinante]
+Il \textbf{determinante} di una matrice $A \in \mathcal{M}_{n \times n}(\mathbb{R})$, indicato con $\det(A)$ o $|A|$, è definito ricorsivamente:
+\begin{itemize}
+    \item Se $n = 1$: $\det(a_{11}) = a_{11}$.
+    \item Se $n \geq 2$: $\displaystyle \det(A) = \sum_{j=1}^{n} (-1)^{1+j} \, a_{1j} \, \det(A_{1j})$
+\end{itemize}
+dove $A_{1j}$ è la matrice $(n-1) \times (n-1)$ ottenuta da $A$ eliminando la prima riga e la $j$-esima colonna. Il termine $(-1)^{i+j} \det(A_{ij})$ si chiama \textbf{cofattore} di $a_{ij}$, indicato con $C_{ij}$.
+\end{definitionbox}
+
+\begin{examplebox}[Determinante $2 \times 2$]
+Per $A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}$:
+\[ \det(A) = ad - bc. \]
+Ad esempio: $\det\begin{pmatrix} 3 & 1 \\ 2 & 5 \end{pmatrix} = 3 \cdot 5 - 1 \cdot 2 = 13$.
+\end{examplebox}
+
+\begin{examplebox}[Determinante $3 \times 3$ --- regola di Sarrus]
+Per $A \in \mathcal{M}_{3 \times 3}(\mathbb{R})$:
+\begin{multline*}
+\det\begin{pmatrix} a_{11} & a_{12} & a_{13} \\ a_{21} & a_{22} & a_{23} \\ a_{31} & a_{32} & a_{33} \end{pmatrix} = a_{11}a_{22}a_{33} + a_{12}a_{23}a_{31} + a_{13}a_{21}a_{32} \\
+- a_{13}a_{22}a_{31} - a_{12}a_{21}a_{33} - a_{11}a_{23}a_{32}.
+\end{multline*}
+Calcoliamo:
+\[ \det\begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 0 \end{pmatrix} = 0 + 84 + 96 - 105 - 48 - 0 = 27. \]
+\end{examplebox}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{ch03-determinant-geometry}
+  \caption{Interpretazione geometrica del determinante: in 2D, $|\det(\mathbf{u}, \mathbf{v})|$ è l'area del parallelogramma; in 3D, $|\det(\mathbf{u}, \mathbf{v}, \mathbf{w})|$ è il volume del parallelepipedo.}
+  \label{fig:ch03-determinant-geometry}
+\end{figure}
+
+\section{Proprietà dei determinanti}
+\label{sec:det-proprieta}
+
+\begin{theorembox}[Proprietà fondamentali del determinante]
+\label{thm:det-proprieta}
+Per ogni $A, B \in \mathcal{M}_{n \times n}(\mathbb{R})$:
+\begin{enumerate}
+    \item $\det(A^T) = \det(A)$.
+    \item Se $A$ ha una riga (o colonna) di zeri, allora $\det(A) = 0$.
+    \item Se $A$ ha due righe (o colonne) uguali, allora $\det(A) = 0$.
+    \item Scambiando due righe (o colonne), il determinante cambia segno.
+    \item Moltiplicando una riga (o colonna) per $\lambda$, il determinante si moltiplica per $\lambda$.
+    \item Sommando a una riga un multiplo di un'altra riga, il determinante non cambia.
+    \item \textbf{Teorema di Binet}: $\det(AB) = \det(A) \cdot \det(B)$.
+    \item $A$ è invertibile $\Leftrightarrow$ $\det(A) \neq 0$, e in tal caso $\det(A^{-1}) = \frac{1}{\det(A)}$.
+\end{enumerate}
+\end{theorembox}
+
+\begin{notebox}[Determinante e operazioni elementari]
+Le proprietà 4, 5 e 6 significano che possiamo calcolare il determinante riducendo la matrice a scalini con Gauss: se $U$ è la forma a scalini con $s$ scambi di righe e fattori $\lambda_1, \ldots, \lambda_k$ nelle moltiplicazioni, allora:
+\[ \det(A) = (-1)^s \cdot \frac{1}{\lambda_1 \cdots \lambda_k} \cdot u_{11} \cdot u_{22} \cdots u_{nn}. \]
+Per le matrici triangolari (superiori o inferiori), il determinante è il prodotto degli elementi diagonali.
+\end{notebox}
+
+\begin{examplebox}[Determinante tramite riduzione]
+\[ \det\begin{pmatrix} 2 & 1 & 3 \\ 4 & 3 & 8 \\ 2 & 1 & 4 \end{pmatrix} \xrightarrow[R_3 \to R_3 - R_1]{R_2 \to R_2 - 2R_1} \det\begin{pmatrix} 2 & 1 & 3 \\ 0 & 1 & 2 \\ 0 & 0 & 1 \end{pmatrix} = 2 \cdot 1 \cdot 1 = 2. \]
+Le operazioni $R_i \to R_i + \lambda R_j$ non cambiano il determinante, e non abbiamo effettuato scambi né moltiplicazioni, quindi $\det(A) = 2$.
+\end{examplebox}
+
+\section{Sviluppo di Laplace}
+\label{sec:laplace}
+
+\begin{theorembox}[Sviluppo di Laplace]
+\label{thm:laplace}
+Il determinante di $A$ può essere calcolato sviluppando lungo qualsiasi riga $i$ o colonna $j$:
+\begin{align}
+    &\text{Riga } i: & \det(A) &= \sum_{j=1}^{n} (-1)^{i+j} a_{ij} \det(A_{ij}) = \sum_{j=1}^n a_{ij} C_{ij} \\
+    &\text{Colonna } j: & \det(A) &= \sum_{i=1}^{n} (-1)^{i+j} a_{ij} \det(A_{ij}) = \sum_{i=1}^n a_{ij} C_{ij}
+\end{align}
+\end{theorembox}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{ch03-cofactor-signs}
+  \caption{Schema dei segni $(-1)^{i+j}$ per lo sviluppo di Laplace: il pattern a scacchiera dei cofattori in una matrice $4 \times 4$.}
+  \label{fig:ch03-cofactor-signs}
+\end{figure}
+
+\begin{notebox}[Strategia di calcolo]
+Conviene sviluppare lungo la riga o la colonna con il maggior numero di zeri, per ridurre il numero di sottodeterminanti da calcolare.
+\end{notebox}
+
+\begin{examplebox}[Sviluppo di Laplace lungo una colonna]
+Calcoliamo il determinante sviluppando lungo la prima colonna:
+\[ A = \begin{pmatrix} 0 & 2 & 1 \\ 3 & 1 & 0 \\ 0 & 4 & 2 \end{pmatrix} \]
+Sviluppando lungo la colonna 1 (che ha due zeri):
+\begin{align*}
+    \det(A) &= 0 \cdot C_{11} + 3 \cdot C_{21} + 0 \cdot C_{31} \\
+            &= 3 \cdot (-1)^{2+1} \det\begin{pmatrix} 2 & 1 \\ 4 & 2 \end{pmatrix} \\
+            &= 3 \cdot (-1)(4 - 4) = 0.
+\end{align*}
+\end{examplebox}
+
+\section{Calcolo dell'inversa}
+\label{sec:inversa}
+
+\begin{definitionbox}[Matrice dei cofattori e aggiunta]
+La \textbf{matrice dei cofattori} di $A$ è la matrice $\text{cof}(A) = (C_{ij})$. La \textbf{matrice aggiunta} (o classica) è:
+\[ \text{adj}(A) = (\text{cof}(A))^T. \]
+\end{definitionbox}
+
+\begin{theorembox}[Inversa tramite l'aggiunta]
+\label{thm:inversa-aggiunta}
+Se $\det(A) \neq 0$, allora:
+\[ A^{-1} = \frac{1}{\det(A)} \, \text{adj}(A). \]
+\end{theorembox}
+
+\begin{examplebox}[Calcolo dell'inversa $2 \times 2$]
+Per $A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}$ con $\det(A) = ad - bc \neq 0$:
+\[ A^{-1} = \frac{1}{ad - bc} \begin{pmatrix} d & -b \\ -c & a \end{pmatrix}. \]
+Ad esempio: $A = \begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix}$, $\det(A) = 1$, quindi $A^{-1} = \begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}$.
+\end{examplebox}
+
+\section{Regola di Cramer}
+\label{sec:cramer}
+
+\begin{theorembox}[Regola di Cramer]
+\label{thm:cramer}
+Sia $A\mathbf{x} = \mathbf{b}$ un sistema di $n$ equazioni in $n$ incognite con $\det(A) \neq 0$. Allora l'unica soluzione è data da:
+\[ x_j = \frac{\det(A_j)}{\det(A)}, \quad j = 1, \ldots, n, \]
+dove $A_j$ è la matrice ottenuta da $A$ sostituendo la $j$-esima colonna con $\mathbf{b}$.
+\end{theorembox}
+
+\begin{examplebox}[Applicazione della regola di Cramer]
+Risolviamo con Cramer:
+\[ \begin{cases} 2x + y = 5 \\ x + 3y = 7 \end{cases} \]
+Si ha $\det(A) = \det\begin{pmatrix} 2 & 1 \\ 1 & 3 \end{pmatrix} = 5$.
+\begin{align*}
+    x &= \frac{1}{5}\det\begin{pmatrix} 5 & 1 \\ 7 & 3 \end{pmatrix} = \frac{15 - 7}{5} = \frac{8}{5}, \\
+    y &= \frac{1}{5}\det\begin{pmatrix} 2 & 5 \\ 1 & 7 \end{pmatrix} = \frac{14 - 5}{5} = \frac{9}{5}.
+\end{align*}
+\end{examplebox}
+
+\begin{notebox}[Riepilogo del capitolo]
+In questo capitolo abbiamo studiato:
+\begin{itemize}
+    \item La \textbf{definizione ricorsiva} del determinante e la regola di Sarrus per $3 \times 3$.
+    \item Le \textbf{proprietà} fondamentali: effetto delle operazioni elementari, teorema di Binet.
+    \item Lo \textbf{sviluppo di Laplace} per righe o colonne.
+    \item Il calcolo della \textbf{matrice inversa} tramite l'aggiunta.
+    \item La \textbf{regola di Cramer} per sistemi quadrati con matrice invertibile.
+\end{itemize}
+\end{notebox}

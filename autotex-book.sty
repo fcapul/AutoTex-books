@@ -114,8 +114,14 @@
 \setlength{\atxbook@mouter}{0.625in}%
 
 % --- Gutter: use override or default 0.375in ---
+% Only apply gutter in twoside mode (physical book binding).
+% In oneside mode, margins are symmetric (centered text block).
 \ifdefempty{\atxbook@gutter}{%
-  \setlength{\atxbook@gutterdim}{0.375in}%
+  \if@twoside
+    \setlength{\atxbook@gutterdim}{0.375in}%
+  \else
+    \setlength{\atxbook@gutterdim}{0pt}%
+  \fi
 }{%
   \setlength{\atxbook@gutterdim}{\atxbook@gutter}%
 }%
@@ -143,7 +149,8 @@
   top=\atxbook@mtop,
   bottom=\atxbook@mbottom,
   right=\atxbook@mouter,
-  left=\atxbook@minner
+  left=\atxbook@minner,
+  headheight=14.5pt
 ]{geometry}
 
 % =====================================================================
@@ -151,7 +158,8 @@
 % =====================================================================
 \RequirePackage[utf8]{inputenc}
 \RequirePackage[T1]{fontenc}
-\RequirePackage{lmodern}
+\RequirePackage{newpxtext}
+\RequirePackage{newpxmath}
 
 % =====================================================================
 % Headers / footers — UNIFORM on all pages (no odd/even distinction)
@@ -162,7 +170,9 @@
 % Math
 % =====================================================================
 \RequirePackage{amsmath}
+\let\Bbbk\relax
 \RequirePackage{amssymb}
+\let\openbox\relax
 \RequirePackage{amsthm}
 \RequirePackage{mathtools}
 
@@ -318,11 +328,15 @@
 % =====================================================================
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\nouppercase{\leftmark}}
-\fancyhead[R]{\nouppercase{\rightmark}}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\nouppercase{\rightmark}}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
+
+% Compact chapter/section marks for narrow trim sizes
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
 
 % Plain style (used on chapter-opening pages)
 \fancypagestyle{plain}{%

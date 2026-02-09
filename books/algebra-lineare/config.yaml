@@ -1,0 +1,84 @@
+book:
+  title: "Algebra Lineare — Teoria ed Esercizi"
+  author: "AutoTex"
+  language: "italian"
+  chapters:
+    - number: 1
+      title: "Spazi Vettoriali"
+      sections:
+        - "Definizione e prime proprietà"
+        - "Sottospazi vettoriali"
+        - "Combinazioni lineari e generatori"
+        - "Indipendenza lineare"
+        - "Basi e dimensione"
+      description: "Introduzione agli spazi vettoriali su R: definizione assiomatica, sottospazi, indipendenza lineare, basi e dimensione."
+    - number: 2
+      title: "Matrici e Sistemi Lineari"
+      sections:
+        - "Matrici: definizioni e operazioni"
+        - "Sistemi di equazioni lineari"
+        - "Eliminazione di Gauss"
+        - "Rango di una matrice"
+        - "Teorema di Rouché-Capelli"
+      description: "Calcolo matriciale, risoluzione di sistemi lineari con il metodo di Gauss, rango e condizioni di compatibilità."
+    - number: 3
+      title: "Determinanti"
+      sections:
+        - "Definizione ricorsiva"
+        - "Proprietà dei determinanti"
+        - "Sviluppo di Laplace"
+        - "Calcolo dell'inversa"
+        - "Regola di Cramer"
+      description: "Determinante di una matrice quadrata, proprietà fondamentali, sviluppo per righe/colonne, matrice inversa e regola di Cramer."
+    - number: 4
+      title: "Applicazioni Lineari"
+      sections:
+        - "Definizione e proprietà"
+        - "Nucleo e immagine"
+        - "Teorema della dimensione"
+        - "Matrice associata"
+        - "Cambio di base"
+      description: "Applicazioni lineari tra spazi vettoriali, nucleo, immagine, teorema di nullità più rango, rappresentazione matriciale."
+    - number: 5
+      title: "Autovalori e Diagonalizzazione"
+      sections:
+        - "Autovalori e autovettori"
+        - "Polinomio caratteristico"
+        - "Diagonalizzabilità"
+        - "Criteri di diagonalizzazione"
+        - "Matrici simmetriche e teorema spettrale"
+      description: "Autovalori, autovettori, polinomio caratteristico, condizioni di diagonalizzabilità, cenni al teorema spettrale."
+    - number: 6
+      title: "Esercizi Svolti"
+      sections:
+        - "Esercizi su spazi vettoriali"
+        - "Esercizi su matrici e sistemi lineari"
+        - "Esercizi sui determinanti"
+        - "Esercizi sulle applicazioni lineari"
+        - "Esercizi su autovalori e diagonalizzazione"
+      description: "Raccolta completa di esercizi svolti con soluzioni dettagliate per ciascun argomento del corso."
+
+api:
+  gemini_model: "gemini-3-pro-image-preview"
+
+kdp:
+  enabled: true
+  trim_size: "novel"
+  bleed: false
+  gutter: ""
+  paper: "white"
+
+latex:
+  compiler: "pdflatex"
+  compiler_args:
+    - "-interaction=nonstopmode"
+    - "-halt-on-error"
+  root_file: "main.tex"
+  output_dir: "build"
+  docclass_options: "12pt,oneside,openany"
+
+review:
+  max_revision_iterations: 3
+  review_dpi: 200
+  pages_per_review: 2
+  final_review_interval: 5

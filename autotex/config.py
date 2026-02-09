@@ -5,12 +5,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 
 
 @dataclass
 class BookConfig:
     title: str = "Untitled Book"
     author: str = "Unknown Author"
+    language: str = "english"
     chapters: list[dict] = field(default_factory=list)
 
 
@@ -28,7 +30,7 @@ class LatexConfig:
     )
     root_file: str = "main.tex"
     output_dir: str = "build"
-    docclass_options: str = "12pt,openright"
+    docclass_options: str = "12pt,oneside,openany"
 
 
 @dataclass
@@ -81,6 +83,13 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
     if config_path is None:
         config_path = Path("config.yaml")
 
+    # Load .env from project root (walks up from config_path)
+    env_path = config_path.resolve().parent / ".env"
+    if not env_path.exists():
+        # Try the repo root (two levels up from books/<name>/config.yaml)
+        env_path = config_path.resolve().parent.parent.parent / ".env"
+    load_dotenv(env_path, override=False)
+
     raw = {}
     if config_path.exists():
         with open(config_path, "r", encoding="utf-8") as f:
@@ -90,6 +99,7 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
     book = BookConfig(
         title=book_raw.get("title", "Untitled Book"),
         author=book_raw.get("author", "Unknown Author"),
+        language=book_raw.get("language", "english"),
         chapters=book_raw.get("chapters", []),
     )
 
@@ -116,7 +126,7 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
         ),
         root_file=latex_raw.get("root_file", "main.tex"),
         output_dir=latex_raw.get("output_dir", "build"),
-        docclass_options=latex_raw.get("docclass_options", "12pt,openright"),
+        docclass_options=latex_raw.get("docclass_options", "12pt,oneside,openany"),
     )
 
     review_raw = raw.get("review", {})
@@ -148,6 +158,7 @@ def save_config(config: ProjectConfig, config_path: Path | None = None) -> None:
         "book": {
             "title": config.book.title,
             "author": config.book.author,
+            "language": config.book.language,
             "chapters": config.book.chapters,
         },
         "api": {

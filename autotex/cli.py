@@ -152,6 +152,7 @@ def _cmd_init(args) -> None:
         "book:\n"
         '  title: ""\n'
         '  author: "AutoTex"\n'
+        '  language: "english"\n'
         "  chapters: []\n"
         "\n"
         "api:\n"
@@ -171,7 +172,7 @@ def _cmd_init(args) -> None:
         '    - "-halt-on-error"\n'
         '  root_file: "main.tex"\n'
         '  output_dir: "build"\n'
-        '  docclass_options: "12pt,openright"\n'
+        '  docclass_options: "12pt,oneside,openany"\n'
         "\n"
         "review:\n"
         "  max_revision_iterations: 3\n"
@@ -381,9 +382,12 @@ def _cmd_update_main(config) -> None:
     else:
         usepackage = "\\usepackage{autotex-book}"
 
+    babel = f"\\usepackage[{config.book.language}]{{babel}}"
+
     template = (
         f"{docclass}\n"
         f"{usepackage}\n"
+        f"{babel}\n"
         f"\n"
         f"\\title{{{plan.title}}}\n"
         f"\\author{{{config.book.author}}}\n"
