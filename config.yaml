@@ -15,12 +15,6 @@ kdp:
   bleed: false             # true if images extend to page edge
   gutter: ""               # override gutter (e.g. "0.5in"), empty = auto 0.375in
   paper: "white"           # white or cream
-  # KDP margin requirements by page count:
-  #   24-150 pages:  min gutter 0.375in
-  #   151-300 pages: min gutter 0.5in
-  #   301-500 pages: min gutter 0.625in
-  #   501-700 pages: min gutter 0.75in
-  #   701-828 pages: min gutter 0.875in
 
 latex:
   compiler: "pdflatex"

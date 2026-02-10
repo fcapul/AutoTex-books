@@ -1,6 +1,6 @@
 # AutoTex Book Generator
 
-Agent-based scientific book generator in LaTeX. Claude Code is the primary agent — it plans, writes chapters, reviews formatting, and fixes issues. The Python package (`autotex/`) provides utility commands for compilation, advanced image generation (Gemini), and PDF rendering.
+Agent-based book generator in LaTeX. Claude Code is the primary agent — it plans, writes chapters, reviews formatting, and fixes issues. The Python package (`autotex/`) provides utility commands for compilation, advanced image generation (Gemini), and PDF rendering.
 
 Every book is **KDP-compliant by default** — correct trim sizes, margins, and gutter for print-on-demand binding. The layout uses oneside geometry with gutter on the left (binding) margin. The focus is on professional, elegant formatting and general coherence.
 
@@ -84,7 +84,7 @@ To change the trim size, edit the book's `config.yaml`:
 ```yaml
 kdp:
   enabled: true
-  trim_size: "digest"    # or pocket, novel, royal, crown, large, letter
+  trim_size: "novel"    # or pocket, novel, royal, crown, large, letter
 ```
 
 ## Book Planning
@@ -309,46 +309,3 @@ After completing ALL chapters, perform a final full-book review:
 7. **Overlapping elements**: Text overlapping with figures, tables, or boxes.
 8. **Missing cross-references**: Any "??" in the text means a `\cref{}` or `\ref{}` is broken.
 9. **Consistent styling**: Fonts, spacing, and heading styles should be uniform throughout.
-
-## Config Format
-
-```yaml
-book:
-  title: "Book Title"
-  author: "Author Name"
-  chapters:                    # Populated after planning
-    - number: 1
-      title: "Chapter Title"
-      sections: ["Section 1", "Section 2"]
-      description: "Brief description"
-
-api:
-  gemini_model: "gemini-3-pro-image-preview"
-  # API key from environment: GOOGLE_API_KEY
-
-kdp:
-  enabled: true                # KDP compliance is always on by default
-  trim_size: "novel"           # pocket|digest|novel|royal|crown|large|letter|ustrade|uktrade
-  bleed: false
-  gutter: ""                   # override (e.g. "0.5in"), empty = auto 0.375in
-  paper: "white"               # white|cream
-
-latex:
-  compiler: "pdflatex"
-  compiler_args: ["-interaction=nonstopmode", "-halt-on-error"]
-  root_file: "main.tex"
-  output_dir: "build"
-
-review:
-  max_revision_iterations: 3
-  review_dpi: 200
-  pages_per_review: 2
-  final_review_interval: 5
-```
-
-## Prerequisites
-
-- Python 3.13+
-- pdflatex (MiKTeX on Windows, TeX Live on Linux/macOS)
-- `GOOGLE_API_KEY` environment variable (for image generation)
-- `pip install -r requirements.txt`

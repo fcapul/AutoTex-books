@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 # Aspect ratios supported by Gemini image generation.
-SUPPORTED_ASPECT_RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
+SUPPORTED_ASPECT_RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "16:7"]
 
 # Map aspect ratios to recommended \includegraphics width for LaTeX.
 _ASPECT_WIDTH: dict[str, str] = {
@@ -23,6 +23,7 @@ _ASPECT_WIDTH: dict[str, str] = {
     "3:4": "0.5\\textwidth",
     "2:3": "0.45\\textwidth",
     "9:16": "0.4\\textwidth",
+    "16:7": "0.85\\textwidth",
 }
 
 
@@ -185,7 +186,7 @@ class ImageGenAgent:
         return results
 
     def _build_prompt(self, request: ImageRequest) -> str:
-        """Build a prompt optimized for scientific illustration.
+        """Build the prompt.
 
         Includes aspect ratio guidance so the model produces images
         with the requested proportions.
@@ -194,19 +195,7 @@ class ImageGenAgent:
         if request.aspect_ratio != "16:9":
             ratio_hint = f" The image aspect ratio should be {request.aspect_ratio}."
 
-        ref_hint = ""
-        if request.reference:
-            ref_hint = (
-                " Use the uploaded reference image to maintain visual style "
-                "consistency. Match its color palette, line weight, and overall "
-                "aesthetic while creating the new content described."
-            )
 
         return (
-            f"Create a clean, professional scientific illustration: "
-            f"{request.description}. "
-            f"Use a white background. The image should be suitable for "
-            f"a printed textbook. Use clear labels, clean lines, and "
-            f"professional scientific style. No decorative elements — "
-            f"purely informational.{ratio_hint}{ref_hint}"
+            f"{request.description}{ratio_hint}"
         )
