@@ -19,7 +19,7 @@ class BookConfig:
 @dataclass
 class APIConfig:
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-3-pro-image-preview"
+    gemini_model: str = "gemini-3.1-flash-image-preview"
 
 
 @dataclass
@@ -98,7 +98,7 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
     book_raw = raw.get("book", {})
     book = BookConfig(
         title=book_raw.get("title", "Untitled Book"),
-        author=book_raw.get("author", "Unknown Author"),
+        author=book_raw.get("author", "AutoTeX Books"),
         language=book_raw.get("language", "english"),
         chapters=book_raw.get("chapters", []),
     )
@@ -106,7 +106,7 @@ def load_config(config_path: Path | None = None) -> ProjectConfig:
     api_raw = raw.get("api", {})
     api = APIConfig(
         gemini_api_key=os.environ.get("GOOGLE_API_KEY", ""),
-        gemini_model=api_raw.get("gemini_model", "gemini-3-pro-image-preview"),
+        gemini_model=api_raw.get("gemini_model", "gemini-3.1-flash-image-preview"),
     )
 
     kdp_raw = raw.get("kdp", {})

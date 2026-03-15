@@ -5,7 +5,7 @@ book:
   chapters: []
 
 api:
-  gemini_model: "gemini-3-pro-image-preview"
+  gemini_model: "gemini-3.1-flash-image-preview"
   # API key read from environment variable: GOOGLE_API_KEY
 
 kdp:

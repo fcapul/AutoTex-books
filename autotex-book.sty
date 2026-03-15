@@ -198,7 +198,7 @@
 ]{caption}
 
 % =====================================================================
-% Colored boxes
+% Boxes
 % =====================================================================
 \RequirePackage[most]{tcolorbox}
 \RequirePackage{xcolor}
@@ -246,60 +246,12 @@
 \setlength{\parskip}{0pt plus 1pt}
 
 % =====================================================================
-% Custom tcolorbox environments — professional, elegant styling
+% Custom tcolorbox environments
+% — NO defaults defined here. Each book defines its own palette
+%   in main.tex (after \usepackage{autotex-book}) to match its
+%   theme, genre, and audience. tcolorbox and xcolor are loaded
+%   above and available for use.
 % =====================================================================
-
-% Definition box — blue accent
-\newtcolorbox{definitionbox}[1][]{%
-  colback=blue!3!white,
-  colframe=blue!55!black,
-  fonttitle=\bfseries,
-  title={#1},
-  rounded corners,
-  boxrule=0.7pt,
-  arc=3pt,
-  left=8pt, right=8pt,
-  top=6pt, bottom=6pt
-}
-
-% Theorem box — green accent
-\newtcolorbox{theorembox}[1][]{%
-  colback=green!3!white,
-  colframe=green!40!black,
-  fonttitle=\bfseries,
-  title={#1},
-  rounded corners,
-  boxrule=0.7pt,
-  arc=3pt,
-  left=8pt, right=8pt,
-  top=6pt, bottom=6pt
-}
-
-% Example box — amber accent
-\newtcolorbox{examplebox}[1][]{%
-  colback=orange!3!white,
-  colframe=orange!60!black,
-  fonttitle=\bfseries,
-  title={#1},
-  rounded corners,
-  boxrule=0.7pt,
-  arc=3pt,
-  left=8pt, right=8pt,
-  top=6pt, bottom=6pt
-}
-
-% Warning/Note box — red accent
-\newtcolorbox{notebox}[1][]{%
-  colback=red!3!white,
-  colframe=red!55!black,
-  fonttitle=\bfseries,
-  title={#1},
-  rounded corners,
-  boxrule=0.7pt,
-  arc=3pt,
-  left=8pt, right=8pt,
-  top=6pt, bottom=6pt
-}
 
 % =====================================================================
 % Code listing style

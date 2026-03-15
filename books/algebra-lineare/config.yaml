@@ -59,7 +59,7 @@ book:
       description: "Raccolta completa di esercizi svolti con soluzioni dettagliate per ciascun argomento del corso."
 
 api:
-  gemini_model: "gemini-3-pro-image-preview"
+  gemini_model: "gemini-3.1-flash-image-preview"
 
 kdp:
   enabled: true

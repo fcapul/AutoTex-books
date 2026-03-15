@@ -156,7 +156,7 @@ def _cmd_init(args) -> None:
         "  chapters: []\n"
         "\n"
         "api:\n"
-        '  gemini_model: "gemini-3-pro-image-preview"\n'
+        '  gemini_model: "gemini-3.1-flash-image-preview"\n'
         "\n"
         "kdp:\n"
         "  enabled: true\n"
