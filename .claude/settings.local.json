@@ -8,10 +8,4 @@
       "Bash(pip install:*)"
     ]
   }
-  {
-  "autoCompact": {
-    "enabled": true,
-    "threshold": 0.5 
-  }
-}
 }
