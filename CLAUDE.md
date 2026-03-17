@@ -126,10 +126,10 @@ When asked to plan a book:
 
 **Rules:**
 - Design the palette to match the book's **theme, genre, and audience** (e.g., a mathematics textbook calls for a different aesthetic than a persuasion guide or a fantasy worldbuilding book).
-- Choose **3-5 semantic roles** appropriate to the content (e.g., definition/theorem/example/note for academic books; principle/exercise/insight/warning for practical guides; lore/mechanic/example/tip for game design books).
-- Name the environments descriptively to match their role in this specific book.
-- Styles must be **elegant and intentional**: coherent color palette, consistent spacing, purposeful use of rules, backgrounds, and typography. Avoid generic rainbow-colored boxes.
-- All environments must feel like a unified design system, not independent choices.
+- Choose **2–4 semantic roles** appropriate to the content. **Fewer is better** — only define a box type if plain text genuinely cannot convey the same structure.
+- Styles must be **minimal and restrained**: no colored backgrounds, no colored borders. Use only thin rules (black or dark gray), subtle left-rule accents, or gray fills at most. Avoid any box that looks decorative rather than functional.
+- All environments must feel like a unified, typographically restrained design system.
+- **When in doubt, don't use a box.** A well-written paragraph needs no border.
 
 Add the palette definitions to `main.tex` in a clearly delimited block:
 ```latex
